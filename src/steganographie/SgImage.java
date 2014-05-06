@@ -52,6 +52,7 @@ public class SgImage {
 
     public static BufferedImage newCopy(BufferedImage tmpBuf) {
 
+
         BufferedImage tmp = new BufferedImage(tmpBuf.getWidth(), tmpBuf.getHeight(), tmpBuf.getType());
 
         for (int col = 0; col < tmpBuf.getWidth(); col++) {
@@ -71,19 +72,20 @@ public class SgImage {
 
     public SgImage(BufferedImage ib, int fi) {
 
-        this.finalBits = fi;
-        this.img = ib;
-        this.imgOut = newCopy(ib);
+        if (ib != null) {
+            this.finalBits = fi;
+            this.img = ib;
+            this.imgOut = newCopy(ib);
 
-        for (int w = 0; w < img.getHeight(); w++) {
-            for (int h = 0; h < img.getWidth(); h++) {
+            for (int w = 0; w < img.getHeight(); w++) {
+                for (int h = 0; h < img.getWidth(); h++) {
 
-                dataToStore.add(SgUtils.fill8zero(SgUtils.getRed(this.img.getRGB(h, w))));
-                dataToStore.add(SgUtils.fill8zero(SgUtils.getGreen(this.img.getRGB(h, w))));
-                dataToStore.add(SgUtils.fill8zero(SgUtils.getBlue(this.img.getRGB(h, w))));
+                    dataToStore.add(SgUtils.fill8zero(SgUtils.getRed(this.img.getRGB(h, w))));
+                    dataToStore.add(SgUtils.fill8zero(SgUtils.getGreen(this.img.getRGB(h, w))));
+                    dataToStore.add(SgUtils.fill8zero(SgUtils.getBlue(this.img.getRGB(h, w))));
+                }
             }
         }
-
     }
 
     public BufferedImage getImage() {
@@ -96,127 +98,133 @@ public class SgImage {
 
     public void encodeText(SgText hidden, boolean save) {
 
-        String firstOctal = hidden.getFirstByte();
-       
-        int limit = hidden.getMaxByte();
-        int cpt = 0;
-        boolean forward = true;
+        if (img != null) {
+            String firstOctal = hidden.getFirstByte();
 
-        // ENCODER
+            int limit = hidden.getMaxByte();
+            int cpt = 0;
+            boolean forward = true;
 
-        for (int w = 0; w < img.getHeight(); w++) {
-            for (int h = 0; h < img.getWidth(); h++) {
+            // ENCODER
 
-                if (forward) {
-                    int numbR = (SgUtils.getRed(img.getRGB(h, w)));
-                    int numbG = (SgUtils.getGreen(img.getRGB(h, w)));
-                    int numbB = (SgUtils.getBlue(img.getRGB(h, w)));
+            for (int w = 0; w < img.getHeight(); w++) {
+                for (int h = 0; h < img.getWidth(); h++) {
 
-                    String numbRo = SgUtils.fill8zero(numbR);
-                    String numbGo = SgUtils.fill8zero(numbG);
-                    String numbBo = SgUtils.fill8zero(numbB);
+                    if (forward) {
+                        int numbR = (SgUtils.getRed(img.getRGB(h, w)));
+                        int numbG = (SgUtils.getGreen(img.getRGB(h, w)));
+                        int numbB = (SgUtils.getBlue(img.getRGB(h, w)));
 
-                    if (w == 0 && h == 0) {
-                        numbRo = hidden.getFirstByteAdvanced(1);
-                        numbGo = hidden.getFirstByteAdvanced(2);
-                        numbBo = hidden.getFirstByteAdvanced(3);
+                        String numbRo = SgUtils.fill8zero(numbR);
+                        String numbGo = SgUtils.fill8zero(numbG);
+                        String numbBo = SgUtils.fill8zero(numbB);
 
-                    } else {
-                        if (cpt < limit) {
-                            numbRo = SgUtils.fill8zero(numbRo, hidden.get(cpt), finalBits);
-                            if (cpt + 1 < limit) {
-                                numbGo = SgUtils.fill8zero(numbGo, hidden.get(cpt + 1), finalBits);
-                            }
-                            if (cpt + 2 < limit) {
-                                numbBo = SgUtils.fill8zero(numbBo, hidden.get(cpt + 2), finalBits);
-                            }
-                            cpt += 3;
+                        if (w == 0 && h == 0) {
+                            numbRo = hidden.getFirstByteAdvanced(1);
+                            numbGo = hidden.getFirstByteAdvanced(2);
+                            numbBo = hidden.getFirstByteAdvanced(3);
+
                         } else {
-                            forward = false;
+                            if (cpt < limit) {
+                                numbRo = SgUtils.fill8zero(numbRo, hidden.get(cpt), finalBits);
+                                if (cpt + 1 < limit) {
+                                    numbGo = SgUtils.fill8zero(numbGo, hidden.get(cpt + 1), finalBits);
+                                }
+                                if (cpt + 2 < limit) {
+                                    numbBo = SgUtils.fill8zero(numbBo, hidden.get(cpt + 2), finalBits);
+                                }
+                                cpt += 3;
+                            } else {
+                                forward = false;
+                            }
                         }
+
+
+                        imgOut.setRGB(h, w, SgUtils.makeRGB(SgUtils.unfill8zero(numbRo), SgUtils.unfill8zero(numbGo), SgUtils.unfill8zero(numbBo)));
+                    } else {
+                        imgOut.setRGB(h, w, img.getRGB(h, w));
                     }
 
-
-                    imgOut.setRGB(h, w, SgUtils.makeRGB(SgUtils.unfill8zero(numbRo), SgUtils.unfill8zero(numbGo), SgUtils.unfill8zero(numbBo)));
-                } else {
-                    imgOut.setRGB(h, w, img.getRGB(h, w));
                 }
-
+                //System.out.println(" ");
             }
-            //System.out.println(" ");
-        }
 
-        if (save) {
-            this.saveOut();
+            if (save) {
+                this.saveOut();
+            }
         }
     }
 
     public void encodeImage(SgImage hidden, boolean save) {
 
-        int limit = hidden.getMaxByte();
+        if (img != null) {
 
-        int cpt = 0;
-        boolean forward = true;
+            int limit = hidden.getMaxByte();
 
-        // ENCODER
+            int cpt = 0;
+            boolean forward = true;
 
-        for (int w = 0; w < img.getHeight(); w++) {
-            for (int h = 0; h < img.getWidth(); h++) {
+            // ENCODER
 
-                if (forward) {
+            for (int w = 0; w < img.getHeight(); w++) {
+                for (int h = 0; h < img.getWidth(); h++) {
 
-                    int numbR = (SgUtils.getRed(img.getRGB(h, w)));
-                    int numbG = (SgUtils.getGreen(img.getRGB(h, w)));
-                    int numbB = (SgUtils.getBlue(img.getRGB(h, w)));
+                    if (forward) {
 
-                    String numbRo = SgUtils.fill8zero(numbR);
-                    String numbGo = SgUtils.fill8zero(numbG);
-                    String numbBo = SgUtils.fill8zero(numbB);
+                        int numbR = (SgUtils.getRed(img.getRGB(h, w)));
+                        int numbG = (SgUtils.getGreen(img.getRGB(h, w)));
+                        int numbB = (SgUtils.getBlue(img.getRGB(h, w)));
+
+                        String numbRo = SgUtils.fill8zero(numbR);
+                        String numbGo = SgUtils.fill8zero(numbG);
+                        String numbBo = SgUtils.fill8zero(numbB);
 
 
-                    if (w == 0 && h == 0) {
-                        numbRo = hidden.getFirstByteAdvanced(1);
-                    } else if (w == 0 && h == 1) {
-                        numbGo = hidden.getFirstByteAdvanced(2);
-                    } else if (w == 0 && h == 2) {
-                        numbBo = hidden.getFirstByteAdvanced(3);
-                    } else if (w == 0 & h == 3) { // WIDTH
-                        numbRo = SgUtils.fill16zero(hidden.img.getWidth()).substring(0, 8);
-                    } else if (w == 0 & h == 4) { // WIDTH
-                        numbRo = SgUtils.fill16zero(hidden.img.getWidth()).substring(8, 16);
-                    } else if (w == 0 & h == 5) { // HEIGHT
-                        numbRo = SgUtils.fill16zero(hidden.img.getHeight()).substring(0, 8);
-                    } else if (w == 0 & h == 6) { // HEIGHT
-                        numbRo = SgUtils.fill16zero(hidden.img.getHeight()).substring(8, 16);
-                    } else {
-
-                        if (cpt < limit) {
-                            numbRo = numbRo.substring(0, 4) + hidden.dataToStore.get(cpt).substring(0, 4);
-
-                            if (cpt + 1 < limit) {
-                                numbGo = numbGo.substring(0, 4) + hidden.dataToStore.get(cpt + 1).substring(0, 4);
-                            }
-                            if (cpt + 2 < limit) {
-                                numbBo = numbBo.substring(0, 4) + hidden.dataToStore.get(cpt + 2).substring(0, 4);
-                            }
-                            cpt += 3;
+                        if (w == 0 && h == 0) {
+                            numbRo = hidden.getFirstByteAdvanced(1);
+                        } else if (w == 0 && h == 1) {
+                            numbGo = hidden.getFirstByteAdvanced(2);
+                        } else if (w == 0 && h == 2) {
+                            numbBo = hidden.getFirstByteAdvanced(3);
+                        } else if (w == 0 & h == 3) { // WIDTH
+                            numbRo = SgUtils.fill16zero(hidden.img.getWidth()).substring(0, 8);
+                        } else if (w == 0 & h == 4) { // WIDTH
+                            numbRo = SgUtils.fill16zero(hidden.img.getWidth()).substring(8, 16);
+                        } else if (w == 0 & h == 5) { // HEIGHT
+                            numbRo = SgUtils.fill16zero(hidden.img.getHeight()).substring(0, 8);
+                        } else if (w == 0 & h == 6) { // HEIGHT
+                            numbRo = SgUtils.fill16zero(hidden.img.getHeight()).substring(8, 16);
                         } else {
-                            forward = false;
+
+                            if (cpt < limit) {
+                                numbRo = numbRo.substring(0, 4) + hidden.dataToStore.get(cpt).substring(0, 4);
+
+                                if (cpt + 1 < limit) {
+                                    numbGo = numbGo.substring(0, 4) + hidden.dataToStore.get(cpt + 1).substring(0, 4);
+                                }
+                                if (cpt + 2 < limit) {
+                                    numbBo = numbBo.substring(0, 4) + hidden.dataToStore.get(cpt + 2).substring(0, 4);
+                                }
+                                cpt += 3;
+                            } else {
+                                forward = false;
+                            }
+
                         }
 
+                        imgOut.setRGB(h, w, SgUtils.makeRGB(SgUtils.unfill8zero(numbRo), SgUtils.unfill8zero(numbGo), SgUtils.unfill8zero(numbBo)));
+                    } else {
+                        imgOut.setRGB(h, w, img.getRGB(h, w));
                     }
 
-                    imgOut.setRGB(h, w, SgUtils.makeRGB(SgUtils.unfill8zero(numbRo), SgUtils.unfill8zero(numbGo), SgUtils.unfill8zero(numbBo)));
-                } else {
-                    imgOut.setRGB(h, w, img.getRGB(h, w));
                 }
-
+                //System.out.println(" ");
             }
-            //System.out.println(" ");
-        }
 
-        if (save) {
-            this.saveOut();
+            if (save) {
+                this.saveOut();
+            }
+
         }
     }
 
@@ -267,6 +275,7 @@ public class SgImage {
 
     public String decodeText() {
 
+        if (imgOut == null) return "";
         // DECODER
         ArrayList<String> dataToGet = new ArrayList();
         int bitLimit = 0;
@@ -275,9 +284,9 @@ public class SgImage {
 
         for (int w = 0; w < imgOut.getHeight(); w++) {
             for (int h = 0; h < imgOut.getWidth(); h++) {
-                
+
                 int rgb = imgOut.getRGB(h, w);
-                
+
                 int numbR = (SgUtils.getRed(rgb));
                 int numbG = (SgUtils.getGreen(rgb));
                 int numbB = (SgUtils.getBlue(rgb));
@@ -342,6 +351,7 @@ public class SgImage {
 
     public SgImage decodeImage() {
 
+        if (img == null)return null;
         // DECODER
         ArrayList<String> dataToGetOriginal = new ArrayList();
         ArrayList<String> dataToGet = new ArrayList();
@@ -389,12 +399,12 @@ public class SgImage {
                     bufHeight += numbRo;
                     height = SgUtils.unfill16zero(bufHeight);
                 } else {
-                    
+
                     if (opt < bitLimit) {
                         //Remplit les octect avec les 4 de poids faibles et 4 0 derrière
-                        dataToGet.add(SgUtils.fill4zero(numbRo.substring(4,8)));
-                        dataToGet.add(SgUtils.fill4zero(numbGo.substring(4,8)));
-                        dataToGet.add(SgUtils.fill4zero(numbBo.substring(4,8)));
+                        dataToGet.add(SgUtils.fill4zero(numbRo.substring(4, 8)));
+                        dataToGet.add(SgUtils.fill4zero(numbGo.substring(4, 8)));
+                        dataToGet.add(SgUtils.fill4zero(numbBo.substring(4, 8)));
                         opt += 3;
                     } else {
                         forward = false;
@@ -452,8 +462,10 @@ public class SgImage {
     }
 
     public void showMaxBytes() {
-        int oct = (img.getHeight() * img.getWidth()) * 3;
-        System.out.println("La bitmap contient " + oct + " octets au total dont " + (oct - 3) + " écrivables.\n");
+        if (img != null) {
+            int oct = (img.getHeight() * img.getWidth()) * 3;
+            System.out.println("La bitmap contient " + oct + " octets au total dont " + (oct - 3) + " écrivables.\n");
+        }
     }
 
     public String getFirstByteAdvanced(int level) {

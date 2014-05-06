@@ -48,12 +48,14 @@ public class SgImgPanel extends JPanel implements MouseListener{
     }
 
     public void setImageB(BufferedImage i) {
-        this.img = i;
-        this.setPreferredSize(new Dimension(i.getWidth(),i.getHeight()));
-        JScrollPane p = (JScrollPane) this.getParent().getParent();
-        p.setPreferredSize(new Dimension(366,100));
-        
-        this.revalidate();
+        if (i!=null){
+            this.img = i;
+            this.setPreferredSize(new Dimension(i.getWidth(),i.getHeight()));
+            JScrollPane p = (JScrollPane) this.getParent().getParent();
+            p.setPreferredSize(new Dimension(366,100));
+
+            this.revalidate();
+        }
     }
 
     public BufferedImage getImageB() {

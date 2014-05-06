@@ -93,6 +93,7 @@ public class SgPanel extends javax.swing.JPanel {
             }
         });
 
+        imgPane.setBackground(new java.awt.Color(153, 153, 153));
         imgPane.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
         javax.swing.GroupLayout imgPaneLayout = new javax.swing.GroupLayout(imgPane);
@@ -119,7 +120,7 @@ public class SgPanel extends javax.swing.JPanel {
         );
         imgPane1Layout.setVerticalGroup(
             imgPane1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 369, Short.MAX_VALUE)
+            .addGap(0, 323, Short.MAX_VALUE)
         );
 
         jScrollPane3.setViewportView(imgPane1);
@@ -281,9 +282,11 @@ public class SgPanel extends javax.swing.JPanel {
 
         SgImage image = new SgImage(((SgImgPanel) imgPane).getImageB(), tolerenceSlide.getValue());
 
-        image.showMaxBytes();
+        if (image != null){
+            image.showMaxBytes();
 
-        textContent.setText(image.decodeText());
+            textContent.setText(image.decodeText());
+        }
     }//GEN-LAST:event_decodeButtonActionPerformed
 
     private void saveNewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveNewActionPerformed
