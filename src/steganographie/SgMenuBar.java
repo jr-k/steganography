@@ -15,7 +15,6 @@ import javax.swing.KeyStroke;
 
 /**
  * Classe qui gère la barre de menu du logiciel
- * @author Jessym
  */
 public class SgMenuBar extends JMenuBar {
 
