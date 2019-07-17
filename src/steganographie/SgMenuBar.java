@@ -131,7 +131,7 @@ public class SgMenuBar extends JMenuBar {
 
             public void actionPerformed(ActionEvent arg0) {
                JOptionPane jop = new JOptionPane();
-               jop.showMessageDialog(null,"LP Dasi 2013 - Réseau - Stéganographie\nJessym REZIGA\nRafi PANOYAN\n","A propos",JOptionPane.INFORMATION_MESSAGE);
+               jop.showMessageDialog(null,"LP Dasi 2013 - Réseau - Stéganographie\nJRK\nRafi PANOYAN\n","A propos",JOptionPane.INFORMATION_MESSAGE);
             }
         });
 
